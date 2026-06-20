@@ -25,18 +25,21 @@ def read_root():
 
 @app.post("/predict")
 def predict(input_data: CrashInput):
-    # Zet de input om naar een DataFrame
+    # 1. Zet de JSON input om naar een DataFrame
     data_dict = input_data.dict()
     df = pd.DataFrame([data_dict])
     
-    # Doe de voorspelling
-    # We gebruiken predict_proba om een percentage (0.0 tot 1.0) te krijgen
+    # 2. Dwing de kolommen om de namen te gebruiken die het model verwacht
+    if hasattr(model, "feature_names_in_"):
+        df.columns = model.feature_names_in_
+    else:
+        # Als het model met een kale matrix (numpy) is getraind, vallen we hierop terug
+        df = df.values 
+        
+    # 3. Doe de voorspelling
     prediction_proba = model.predict_proba(df)
     
-    # Pak de kans voor de 'crash' klasse (meestal index 1)
-    # Als je model anders is opgebouwd, pas dit dan aan
+    # 4. Pak de kans voor de 'crash' klasse (index 1)
     risk_score = float(prediction_proba[0][1])
     
     return {"risk_score": round(risk_score, 4)}
-
-# Om de API te runnen (lokaal): uvicorn main:app --reload
