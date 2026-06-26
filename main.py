@@ -5,7 +5,6 @@ import pandas as pd
 app = FastAPI(title="Lantaarnpaal Risico API")
 model = joblib.load("lantaarnpaal_model_definitief.pkl")
 class CrashInput(BaseModel):
-    # Pas deze velden aan naar de features die jouw model echt nodig heeft!
     latitude: float
     longitude: float
     mast_hoogte: int
@@ -14,11 +13,10 @@ class CrashInput(BaseModel):
     gladheid_risico: int
 
 def read_root():
-    return {"message": "De Lantaarnpaal Risico API is live!"}
+    return {"message": "De Lantaarnpaal API is live!"}
 
 @app.post("/predict")
 def predict(input_data: CrashInput):
-    # 1. Zet de JSON input om naar een DataFrame
     data_dict = input_data.dict()
     df = pd.DataFrame([data_dict])
     
